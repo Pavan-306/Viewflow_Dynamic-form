@@ -1,0 +1,7 @@
+<form method="post">
+  {% csrf_token %}
+  <vf-form activation=activation>
+    {{ form }}
+    <button type="submit">Submit</button>
+  </vf-form>
+</form>
