@@ -1,24 +1,30 @@
 from django.contrib.auth import get_user_model
 from viewflow import this
 from viewflow.workflow import flow, lock
-from viewflow.workflow.flow.views import CreateProcessView, UpdateProcessView
+from viewflow.workflow.flow.views import UpdateProcessView
 from .models import TicketProcess
+from .views import DynamicStartView
 
 User = get_user_model()
+
 
 class TicketFlow(flow.Flow):
     process_class = TicketProcess
     lock_impl = lock.select_for_update_lock
-
     start = (
         flow.Start(
-            CreateProcessView.as_view(
-                model=TicketProcess,
-                fields=["form_definition", "ticket_data"]
-            )
+            DynamicStartView.as_view()
         )
         .Annotation(title="Start Jira Ticket")
         .Permission(auto_create=True)
+        .Next(this.save_ticket_data)
+    )
+
+    save_ticket_data = (
+        flow.Function(
+            lambda activation: _save_ticket_data(activation)
+        )
+        .Annotation(title="Save Ticket Data")
         .Next(this.user_approval)
     )
 
@@ -71,3 +77,10 @@ class TicketFlow(flow.Flow):
     )
 
     end = flow.End()
+
+
+def _save_ticket_data(activation):
+    process = activation.process
+    if hasattr(activation, 'form') and activation.form.is_valid():
+        process.ticket_data = activation.form.cleaned_data
+        process.save()

@@ -9,10 +9,6 @@ TYPE_MAP = {
 }
 
 class DynamicJSONForm(forms.Form):
-    """
-    Build a form dynamically from the given field_schema (list of dicts).
-    """
-
     def __init__(self, *args, schema=None, initial=None, **kwargs):
         super().__init__(*args, **kwargs)
         assert isinstance(schema, list), "schema must be a list"
@@ -26,9 +22,6 @@ class DynamicJSONForm(forms.Form):
             )
 
 class ApprovalForm(forms.Form):
-    """
-    Step form used by each approver: whether approved + comment.
-    """
     decision = forms.ChoiceField(
         choices=[('approved', 'Approve'), ('rejected', 'Reject')],
         widget=forms.RadioSelect

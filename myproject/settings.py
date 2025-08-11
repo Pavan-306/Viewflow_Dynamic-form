@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'ticketflow',
     'viewflow',
     'viewflow.workflow',
+    'dynamic_forms',
 ]
 
 MIDDLEWARE = [
